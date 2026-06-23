@@ -3,7 +3,7 @@
 	"name": "Book Progress",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Read books in Obsidian: remembers your reading position, shows remaining time and pages in the status bar, and renders progress bars for your books via a `book` code block.",
+	"description": "Read books in Obsidian: scroll-position memory, remaining reading time, and book progress bars.",
 	"author": "ununnamed",
 	"authorUrl": "https://github.com/ununnamed",
 	"isDesktopOnly": false

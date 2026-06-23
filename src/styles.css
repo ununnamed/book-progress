@@ -1,0 +1,59 @@
+.bp-progress {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	padding: 1px;
+}
+
+.bp-progress-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+}
+
+.bp-progress-wrapper progress {
+	width: 30%;
+	height: 12px;
+	flex-shrink: 0;
+	accent-color: var(--color-green);
+}
+
+.bp-progress-pct {
+	font-weight: 500;
+}
+
+.bp-progress-pct.is-finished {
+	color: var(--color-green);
+}
+
+.bp-progress-info {
+	font-size: 10px;
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	white-space: nowrap;
+}
+
+.bp-progress-error {
+	font-size: 12px;
+	color: var(--text-error);
+}
+
+.bp-help {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	margin-top: 0.5em;
+}
+
+.bp-help pre {
+	background: var(--background-secondary);
+	padding: 0.5em 0.75em;
+	border-radius: 4px;
+	overflow-x: auto;
+}
+
+.bp-help ul {
+	padding-left: 1.4em;
+	margin: 0.4em 0;
+}

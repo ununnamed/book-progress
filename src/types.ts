@@ -1,3 +1,42 @@
+import { Plugin } from "obsidian";
+
+/**
+ * User-configurable settings. Lives here (a leaf module that only imports
+ * from "obsidian") so both the plugin and the settings tab can reference it
+ * without importing each other.
+ */
+export interface Settings {
+	// --- reading time ---
+	/** words per minute; multiplied by 5 internally to approximate chars/min */
+	readingSpeed: number;
+	/** word appended after the time, e.g. "left" */
+	appendText: string;
+	/** show scroll percentage next to the time in the status bar */
+	showProgressPercentage: boolean;
+	/** show "X/Y pages" in the status bar */
+	showPagesInStatusBar: boolean;
+
+	// --- scroll history / persistence ---
+	databaseFilePath: string;
+	delayAfterFileOpeningMs: number;
+	saveTimeoutMs: number;
+}
+
+/**
+ * The subset of the plugin that the settings tab and the progress-bar
+ * renderer rely on. Declaring it here (rather than importing the concrete
+ * `BookProgressPlugin` default export from `main.ts`) breaks the
+ * `main.ts` <-> consumer import cycle, which otherwise makes type-aware
+ * linters resolve `this.plugin` as `any`.
+ */
+export interface BookProgressApi extends Plugin {
+	settings: Settings;
+	saveSettings(): Promise<void>;
+	updateStatusBar(): void;
+	getScrollData(filePath: string): ScrollStateData | undefined;
+	resetProgress(filePath: string): Promise<boolean>;
+}
+
 /**
  * One stored reading position for a single file.
  *

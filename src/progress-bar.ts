@@ -1,5 +1,5 @@
 import { parseYaml } from "obsidian";
-import type BookProgressPlugin from "./main";
+import { BookProgressApi } from "./types";
 import { CHARS_PER_PAGE, PROGRESS_BAR_REFRESH_INTERVAL_MS } from "./settings";
 import { readingTimeText } from "./helpers";
 import { isNewVirtualDay } from "./utils";
@@ -26,7 +26,7 @@ const RESET_LINE_REGEX =
  * `plugin.database`, the same in-memory store the scroll tracker writes to.
  */
 export class ProgressBarRenderer {
-	constructor(private plugin: BookProgressPlugin) {}
+	constructor(private plugin: BookProgressApi) {}
 
 	register(): void {
 		this.plugin.registerMarkdownCodeBlockProcessor("book", (source, el) => {

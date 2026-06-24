@@ -50,9 +50,9 @@ export function serializeError(error: unknown): string {
 	}
 	try {
 		const serialized = JSON.stringify(error);
-		return serialized === "{}" ? String(error) : serialized;
+		return serialized && serialized !== "{}" ? serialized : "[unserializable-error]";
 	} catch {
-		return String(error);
+		return "[unserializable-error]";
 	}
 }
 
@@ -70,8 +70,8 @@ function getLeafId(leaf: WorkspaceLeaf): string {
  */
 export function createFileIdentifier(leaf: WorkspaceLeaf | null): string | null {
 	const correspondingFile = leaf?.getViewState().state?.file;
-	if (!correspondingFile) {
+	if (typeof correspondingFile !== "string" || !correspondingFile) {
 		return null;
 	}
-	return getLeafId(leaf) + ":" + String(correspondingFile);
+	return getLeafId(leaf) + ":" + correspondingFile;
 }

@@ -15,7 +15,7 @@ import {
 	Settings,
 	SettingsTab,
 } from "./settings";
-import { Database, ScrollStateData } from "./types";
+import { Database, ScrollStateData, BookProgressApi } from "./types";
 import {
 	copySerializable,
 	createFileIdentifier,
@@ -27,7 +27,7 @@ import {
 import { readingTimeText } from "./helpers";
 import { ProgressBarRenderer } from "./progress-bar";
 
-export default class BookProgressPlugin extends Plugin {
+export default class BookProgressPlugin extends Plugin implements BookProgressApi {
 	settings: Settings;
 	database: Database = {};
 
@@ -210,9 +210,11 @@ export default class BookProgressPlugin extends Plugin {
 	// ------------------------------------------------------------------ //
 
 	private getScrollerEl(view: MarkdownView): HTMLElement | null {
-		return (view.contentEl.querySelector(".cm-scroller") ??
-			view.contentEl.querySelector(".markdown-source-view") ??
-			view.contentEl) as HTMLElement | null;
+		return (
+			view.contentEl.querySelector<HTMLElement>(".cm-scroller") ??
+			view.contentEl.querySelector<HTMLElement>(".markdown-source-view") ??
+			view.contentEl
+		);
 	}
 
 	/**

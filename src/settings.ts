@@ -1,22 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import type BookProgressPlugin from "./main";
+import { BookProgressApi, Settings } from "./types";
 
-export interface Settings {
-	// --- reading time ---
-	/** words per minute; multiplied by 5 internally to approximate chars/min */
-	readingSpeed: number;
-	/** word appended after the time, e.g. "left" */
-	appendText: string;
-	/** show scroll percentage next to the time in the status bar */
-	showProgressPercentage: boolean;
-	/** show "X/Y pages" in the status bar */
-	showPagesInStatusBar: boolean;
-
-	// --- scroll history / persistence ---
-	databaseFilePath: string;
-	delayAfterFileOpeningMs: number;
-	saveTimeoutMs: number;
-}
+export type { Settings } from "./types";
 
 export const CHARS_PER_PAGE = 1600;
 export const MIN_SAVE_TIMEOUT_MS = 5000;
@@ -38,9 +23,9 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export class SettingsTab extends PluginSettingTab {
-	plugin: BookProgressPlugin;
+	plugin: BookProgressApi;
 
-	constructor(app: App, plugin: BookProgressPlugin) {
+	constructor(app: App, plugin: BookProgressApi) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

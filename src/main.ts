@@ -20,6 +20,7 @@ import {
 	copySerializable,
 	createFileIdentifier,
 	INVALID_FILE_IDENTIFIER,
+	isNewVirtualDay,
 	serializeError,
 	sleep,
 } from "./utils";
@@ -109,7 +110,7 @@ export default class BookProgressPlugin extends Plugin {
 		let database: Database = {};
 		if (await this.app.vault.adapter.exists(this.settings.databaseFilePath)) {
 			const data = await this.app.vault.adapter.read(this.settings.databaseFilePath);
-			database = JSON.parse(data);
+			database = JSON.parse(data) as Database;
 		}
 		return database;
 	}
@@ -219,7 +220,7 @@ export default class BookProgressPlugin extends Plugin {
 	 * current view is not a CM editor (e.g. reading mode).
 	 */
 	private getCm(view: MarkdownView): EditorView | null {
-		const cm = (view.editor as any)?.cm;
+		const cm = (view.editor as unknown as { cm?: EditorView }).cm;
 		return cm instanceof EditorView ? cm : null;
 	}
 
@@ -394,9 +395,18 @@ export default class BookProgressPlugin extends Plugin {
 		state.timestamp = now.toISOString();
 
 		const isNewFile = !previous;
-		const isNewDay = this.isNewVirtualDay(previous?.timestamp, now);
-		state.progressAtDayStart =
-			isNewDay || isNewFile ? 0 : previous?.progressAtDayStart ?? 0;
+		const isNewDay = isNewVirtualDay(previous?.timestamp, now);
+		if (isNewFile) {
+			// brand-new entry: nothing has been read today yet
+			state.progressAtDayStart = 0;
+		} else if (isNewDay) {
+			// first save of a new virtual day: today's baseline is wherever
+			// we were when the day rolled over (yesterday's last position)
+			state.progressAtDayStart = previous?.scrollProgress ?? 0;
+		} else {
+			// same day: keep the baseline we already had
+			state.progressAtDayStart = previous?.progressAtDayStart ?? 0;
+		}
 
 		this.database[fileName] = state;
 	}
@@ -411,22 +421,42 @@ export default class BookProgressPlugin extends Plugin {
 		state.isRead = (state.scrollProgress ?? 0) > 0.99;
 	}
 
-	/** A "virtual day" rolls over at 6:00 in the morning. */
-	private isNewVirtualDay(previousTimestamp: string | undefined, current: Date): boolean {
-		if (!previousTimestamp) return true;
-		try {
-			const toVirtualDay = (date: Date): number => {
-				const d = new Date(date);
-				if (d.getHours() < 6) {
-					d.setDate(d.getDate() - 1);
-				}
-				d.setHours(6, 0, 0, 0);
-				return d.getTime();
-			};
-			return toVirtualDay(new Date(previousTimestamp)) !== toVirtualDay(current);
-		} catch {
-			return true;
+	/**
+	 * Wipes the stored reading position for a file (matched leniently, the
+	 * same way the progress bar looks data up). Used by the `book` block's
+	 * reset control to recover from an accidental scroll-to-the-end. Persists
+	 * the database immediately so the change survives a crash.
+	 *
+	 * Returns true if anything was actually removed.
+	 */
+	async resetProgress(filePath: string): Promise<boolean> {
+		const normalized = filePath.startsWith("/") ? filePath.slice(1) : filePath;
+		const withoutExt = normalized.replace(/\.md$/, "");
+
+		let removed = false;
+		for (const key of Object.keys(this.database)) {
+			const normalizedKey = key.startsWith("/") ? key.slice(1) : key;
+			if (
+				key === filePath ||
+				normalizedKey === normalized ||
+				normalizedKey.replace(/\.md$/, "") === withoutExt
+			) {
+				delete this.database[key];
+				removed = true;
+			}
 		}
+
+		// if the reset file happens to be the one we're tracking, drop the
+		// in-memory snapshot too so the next tick starts from a clean slate
+		if (this.lastLoadedFileName === filePath) {
+			this.latestScrollState = {};
+		}
+
+		if (removed) {
+			await this.writeDatabase(this.database);
+			this.updateStatusBar();
+		}
+		return removed;
 	}
 
 	// ------------------------------------------------------------------ //
@@ -478,7 +508,7 @@ export default class BookProgressPlugin extends Plugin {
 	}
 
 	private isActiveFileAlreadyLoaded(): boolean {
-		const activeLeaf = this.app.workspace.getMostRecentLeaf();
+		const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView)?.leaf ?? null;
 		const fileIdentifier = createFileIdentifier(activeLeaf);
 		return this.loadedLeafIdList.includes(fileIdentifier ?? INVALID_FILE_IDENTIFIER);
 	}

@@ -1,0 +1,126 @@
+/*
+ * Book Progress — styling for the `book` code block.
+ *
+ * Colors and width are exposed as CSS variables so they can be overridden
+ * per-theme or in a user snippet, e.g.:
+ *
+ *   .bp-progress {
+ *     --bp-fill-color: #d98a3d;
+ *     --bp-finished-color: #8ec95a;
+ *     --bp-width: 60%;
+ *   }
+ */
+
+.bp-progress {
+	/* bar while filling: a soft, warm orange */
+	--bp-fill-color: #e0974a;
+	/* bar at 100%: a pleasant lime green */
+	--bp-finished-color: #8ec95a;
+	/* "pages read today" counter */
+	--bp-today-color: var(--color-green, #5db85d);
+	/* how wide the whole bar assembly is relative to the note width */
+	--bp-width: 50%;
+
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 0.4em 0;
+}
+
+/* --- book title link -------------------------------------------------- */
+/* keep it clickable, but paint it like normal body text instead of the
+   bright internal-link blue */
+.bp-progress a.bp-book-link,
+.bp-progress a.bp-book-link:visited {
+	color: var(--text-normal);
+	text-decoration: none;
+	font-weight: 600;
+}
+.bp-progress a.bp-book-link:hover {
+	color: var(--text-normal);
+	text-decoration: underline;
+	opacity: 0.85;
+}
+
+/* --- progress bar (pure div, no native <progress>) -------------------- */
+.bp-progress-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: var(--bp-width);
+	min-width: 200px;
+	max-width: 100%;
+}
+
+.bp-bar-track {
+	flex: 1;
+	height: 8px;
+	border-radius: 4px;
+	overflow: hidden;
+	background-color: var(--background-modifier-border);
+}
+
+/* filled portion — orange while reading */
+.bp-bar-fill {
+	height: 100%;
+	border-radius: 4px;
+	background-color: var(--bp-fill-color);
+	transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+/* filled portion — green once finished (100%) */
+.bp-bar-fill.is-finished {
+	background-color: var(--bp-finished-color);
+}
+
+.bp-progress-pct {
+	font-variant-numeric: tabular-nums;
+	font-size: var(--font-smaller);
+	color: var(--text-muted);
+	min-width: 3.2em;
+	text-align: right;
+}
+.bp-progress-pct.is-finished {
+	color: var(--bp-finished-color);
+	font-weight: 600;
+}
+
+/* --- info line -------------------------------------------------------- */
+.bp-progress-info {
+	font-size: var(--font-smaller);
+	color: var(--text-muted);
+}
+
+/* green "pages read today" counter, resets each day at 06:00 */
+.bp-progress-info .bp-today {
+	color: var(--bp-today-color);
+	font-weight: 600;
+}
+
+/* --- reset control ---------------------------------------------------- */
+.bp-reset-row {
+	margin-top: 2px;
+}
+.bp-reset-btn {
+	font-size: var(--font-smaller);
+	padding: 2px 10px;
+	cursor: pointer;
+	color: var(--text-muted);
+	background-color: var(--background-modifier-border);
+	border: none;
+	border-radius: 6px;
+}
+.bp-reset-btn:hover:not(:disabled) {
+	color: var(--text-on-accent);
+	background-color: var(--text-error, #c0392b);
+}
+.bp-reset-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+/* --- error ------------------------------------------------------------ */
+.bp-progress-error {
+	font-size: var(--font-smaller);
+	color: var(--text-error);
+}

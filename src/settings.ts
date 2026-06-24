@@ -125,7 +125,7 @@ export class SettingsTab extends PluginSettingTab {
 			);
 
 		// --- help section ---
-		new Setting(containerEl).setName("Book progress block").setHeading();
+		new Setting(containerEl).setName("Usage").setHeading();
 
 		const help = containerEl.createEl("div", { cls: "bp-help" });
 

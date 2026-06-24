@@ -1,4 +1,4 @@
-# remaining-reading-time
+# Book Progress
 
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/f3c3cade-3cd0-4ed2-853c-647b4c643c9b" />
 
